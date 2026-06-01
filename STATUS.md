@@ -1,6 +1,6 @@
 # ai-governance.dk — project status
 
-**Last updated:** 2026-06-01 (post-deploy)
+**Last updated:** 2026-06-01 (post audit + dashboard viz) (post-deploy)
 
 ## At a glance
 
