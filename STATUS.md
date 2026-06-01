@@ -68,14 +68,63 @@ npm run dev -- --port 8082
 npm run build
 ```
 
+## Audit-driven refresh (2026-06-01)
+
+Web-verified `[verify]` items from the original research; updated source currency. All shipped in commit b805f49:
+
+- **MCP_AUTH** — was pointing at `blog.modelcontextprotocol.io/` (blog landing). Replaced with canonical spec URL `https://modelcontextprotocol.io/specification/2026-03-15/basic/authorization`.
+- **Anthropic RSP** — site cited "v3"; current is **v3.1** (released 2 April 2026). Updated label in 4 places. URL updated to canonical `https://www.anthropic.com/responsible-scaling-policy`.
+- **Anthropic agent safety framework** (Aug 2025) — added as `ANTHROPIC_AGENT_FRAMEWORK` constant, cited in 3.4 `human-oversight-skala` alongside EU AI Act art. 14.
+- **IIA AI Auditing Framework** (Sept 2024 update) — added as new `SourceType` ("IIA") + URL constant. Cited in 1.2 `tre-linjer` as the canonical 3LoD-for-AI reference. `getSourceBadgeClass` in Index.tsx extended to render IIA as industry-amber.
+- **Finanstilsynet 1.2 tre-linjer source** — swapped PDF (`FINANSTILSYNET_AI`) for durable landing page `FINANSTILSYNET_GODPRAKSIS`.
+- **DS 42001** — added `DS_42001` constant (Danish Standard adoption of ISO/IEC 42001:2023) for future Danish-context citations.
+- **ISO/IEC 42005:2025** — added `ISO_42005` constant for future citations.
+- **energi-co2** — severity bumped low → medium; description corrected: CSRD/ESRS E1 currently lacks AI-specific requirements but Scope 1-3 captures AI energy, and ESRS revisions for FY 2027 expected to add AI-specific reporting.
+- **"SOC 2 for AI"** — fixed to "ISO/IEC 42001-certificering kombineret med SOC 2 / ISO 27001 (med AI-scope)".
+
+`[verify]` items that did NOT need changes:
+- Dansk Standard ISO 42001 adoption confirmed.
+- IIA AI auditing framework: confirmed current Sept 2024 update.
+- CSRD ESRS E1: confirmed no AI-specific reporting requirements yet — wording corrected to reflect this.
+- Finanstilsynet most recent AI bulletin: still May 2024 god-praksis guidance; no 2025/2026 update yet.
+
 ## Post-launch items
 
-- [ ] Verify HTTPS Let's Encrypt cert fully provisioned (should be done ~15 min after DNS resolve)
 - [ ] LinkedIn og-image preview test (use Post Inspector with cache-bust `?v=2`)
-- [ ] Content depth review: spot-check categories 3.4 (agent runtime, 6 subcats — the differentiator), 1.4 (agent organizational), 2.4 (agent build-time). Iterate as needed via `git push`.
-- [ ] Translation fix shipped pre-deploy: "AI-inventar" → "AI-register", "Agent- og skill-katalog" → "Agent- og skill-register". Watch for other Danish/English direct-translation awkwardness on review.
 - [ ] Eventually: create governance-specific MailerLite form (currently shares form with compliance + sikkerhed). Swap `MAILERLITE_ACTION` in `src/pages/Index.tsx`.
-- [ ] Items flagged `[verify]` during research — see list below; check before content goes wide.
+
+## Identified content gaps (next round)
+
+From audit — not yet shipped:
+
+**Agent governance depth (the differentiator):**
+- [ ] **Add 1.4.5 `a2a-policy` subcategory** — A2A is now Linux Foundation project (April 2025 Google donation). Cross-org agent communication policy, mutual auth via Verifiable Credentials, data flow review per A2A skill.
+- [ ] **2.4: Add sandboxing/isolation as its own subcategory** — currently buried in `plan-validering` action 4. Container/microVM isolation is 2026 baseline.
+- [ ] **2.4: Add agent observability** (OpenTelemetry GenAI semconv, released stable 2025) — completely missing.
+- [ ] **2.4: Add agent evaluation harnesses** (agent-evals, distinct from model-evals).
+- [ ] **3.4: Add agent rate-limiting at MCP/tool layer** — distinct from token cost.
+- [ ] **3.4: Memory poisoning detection** — enhance `agent-memory` with poisoning-detection action.
+- [ ] **3.4: Expand to enumerate non-MS/Anthropic platforms** in 1.4.1: n8n, Zapier AI agents, LangGraph, CrewAI.
+- [ ] **3.4.6: Add tooling examples** — Microsoft Defender for Cloud Apps + Purview for agent DLP.
+
+**Other governance gaps:**
+- [ ] Open-source vs proprietary model decision framework
+- [ ] Fine-tuning vs RAG vs prompt engineering governance differences
+- [ ] EU AI Act art. 43 Conformity Assessment as dedicated subcategory
+- [ ] AI-generated code governance (provenance, attribution, IP)
+- [ ] Vendor model deprecation as its own subcategory
+- [ ] Continuous EU AI Act re-classification monitoring
+- [ ] AI-related M&A/divestment governance (art. 25 provider/deployer transfer)
+- [ ] AI liability insurance coverage
+- [ ] Public-sector specific: Digst FOTU/sagsbehandling guidance
+
+**Visualizations:**
+- [ ] AI governance operating model diagram (top of Pillar 1)
+- [ ] Agent decision-class matrix (inside 1.4.4 `beslutnings-graenser`)
+- [ ] Framework relationships diagram (NIST ↔ ISO ↔ EU AI Act ↔ OECD ↔ CoE)
+- [ ] AI use case lifecycle Sankey (top of Pillar 2)
+- [ ] Agent runtime control plane diagram (top of 3.4) — marquee visual
+- [ ] Maturity radar/self-assessment tool (3.6 `modenhed`) — engagement magnet
 
 ## Items flagged `[verify]` during research
 
