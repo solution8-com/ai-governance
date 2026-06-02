@@ -765,6 +765,52 @@ function AiCouncilRaci() {
   );
 }
 
+// ── Værktøj: Use case-livscyklus flow (for Pillar 2 udvikling) ──
+function UseCaseLifecycleFlow() {
+  const stages = [
+    { icon: "📥", name: "Intake", owner: "AI Council", gate: "Use case registreret i kataloget", kill: "Forbudt praksis identificeret" },
+    { icon: "🔍", name: "Triage", owner: "2L Compliance", gate: "Risikoklasse foreløbig vurderet", kill: "Outside risk appetite eller red line" },
+    { icon: "🏷️", name: "Klassificering", owner: "Risk Owner", gate: "EU AI Act-klasse + intern matrix sign-off", kill: "Forbudt eller udenfor mandat" },
+    { icon: "🧪", name: "PoC", owner: "Model Owner", gate: "Eval suite + data scope defineret", kill: "Success criteria ikke nået" },
+    { icon: "✅", name: "Pre-launch eval", owner: "2L + Model Owner", gate: "Bias-test + red team + model card", kill: "Højrisiko ikke afhjulpet" },
+    { icon: "🚀", name: "Go-live", owner: "AI Council", gate: "Human oversight wired + kill switch testet", kill: "Manglende incident-plan" },
+    { icon: "📊", name: "Drift & monitor", owner: "Model Owner + 2L", gate: "Drift-tærskler defineret + alarmer", kill: "Performance under SLO" },
+    { icon: "🔄", name: "Retraining / decommission", owner: "Model Owner", gate: "Trigger valideret (tid/drift/regulering)", kill: "Sunset-plan eksekveret" },
+  ];
+
+  return (
+    <div className="mb-8 rounded-xl border border-primary/30 bg-primary/5 p-6">
+      <div className="mb-1 flex items-center gap-2">
+        <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-bold uppercase text-primary-foreground">Værktøj</span>
+        <h3 className="font-display text-lg font-semibold text-foreground">Use case-livscyklus</h3>
+      </div>
+      <p className="mb-5 text-sm text-muted-foreground">
+        Workflowet fra idé til afvikling. Hver gate har en navngiven ejer, et adgangskriterium og et kill-kriterium. Brug som skabelon — udfyld faktiske navne i jeres egen organisation.
+      </p>
+      <div className="grid gap-3 md:grid-cols-4 lg:grid-cols-8">
+        {stages.map((stage, i) => (
+          <div key={stage.name} className="relative rounded-lg border border-border bg-card p-3">
+            <div className="absolute -left-3 -top-3 flex h-6 w-6 items-center justify-center rounded-full bg-primary text-[11px] font-bold text-primary-foreground">
+              {i + 1}
+            </div>
+            <p className="mb-1 text-lg">{stage.icon}</p>
+            <p className="font-display text-[12px] font-semibold leading-tight text-foreground">{stage.name}</p>
+            <p className="mt-2 text-[10px] uppercase tracking-wide text-muted-foreground">Ejer</p>
+            <p className="text-[11px] font-medium text-foreground">{stage.owner}</p>
+            <p className="mt-2 text-[10px] uppercase tracking-wide text-success">Gate</p>
+            <p className="text-[10px] leading-snug text-muted-foreground">{stage.gate}</p>
+            <p className="mt-2 text-[10px] uppercase tracking-wide text-danger">Kill</p>
+            <p className="text-[10px] leading-snug text-muted-foreground">{stage.kill}</p>
+          </div>
+        ))}
+      </div>
+      <p className="mt-4 text-[11px] text-muted-foreground">
+        Bemærk: ejer-rollerne hænger sammen med <strong className="text-foreground">AI Council RACI</strong>-matrixen i kategori 1.2. Et use case kan kun bevæge sig til næste fase når gate er opfyldt — kill-kriterier skal også checkes løbende.
+      </p>
+    </div>
+  );
+}
+
 // ── Pillar View ──
 function PillarView({
   pillar,
@@ -794,6 +840,9 @@ function PillarView({
         </div>
         <p className="mt-3 max-w-2xl text-sm text-muted-foreground">{pillarData.description}</p>
       </div>
+
+      {/* Værktøj: Use case-livscyklus (kun for Pillar 2 Udvikling & Leverance) */}
+      {pillar === "udvikling" && <UseCaseLifecycleFlow />}
 
       <div className="grid gap-4">
         {pillarCats.map((cat) => {
