@@ -969,6 +969,226 @@ function AgentRuntimeControlPlane() {
   );
 }
 
+// ── Værktøj: AI maturity radar (interaktivt selvassessment for 3.6) ──
+type RadarAxis = {
+  id: string;
+  label: string;
+  levels: string[];
+};
+
+function RadarChart({ axes, values, size = 280 }: { axes: RadarAxis[]; values: number[]; size?: number }) {
+  const cx = size / 2;
+  const cy = size / 2;
+  const R = size / 2 - 50;
+  const N = axes.length;
+  const maxValue = 4;
+
+  const angle = (i: number) => -Math.PI / 2 + (i / N) * 2 * Math.PI;
+  const point = (i: number, v: number): [number, number] => {
+    const r = (v / maxValue) * R;
+    return [cx + r * Math.cos(angle(i)), cy + r * Math.sin(angle(i))];
+  };
+
+  const polygonPoints = values.map((v, i) => point(i, Math.max(0.05, v)).join(",")).join(" ");
+  const guides = [1, 2, 3, 4].map((lvl) =>
+    axes.map((_, i) => point(i, lvl).join(",")).join(" ")
+  );
+
+  return (
+    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} className="shrink-0">
+      {guides.map((points, i) => (
+        <polygon
+          key={i}
+          points={points}
+          fill="none"
+          stroke="hsl(var(--border))"
+          strokeWidth={i === 3 ? 1.5 : 1}
+          strokeOpacity={0.4 + i * 0.1}
+        />
+      ))}
+      {axes.map((_, i) => {
+        const [x, y] = point(i, maxValue);
+        return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="hsl(var(--border))" strokeWidth="1" />;
+      })}
+      <polygon
+        points={polygonPoints}
+        fill="hsl(var(--primary) / 0.25)"
+        stroke="hsl(var(--primary))"
+        strokeWidth="2"
+        strokeLinejoin="round"
+      />
+      {values.map((v, i) => {
+        if (v === 0) return null;
+        const [x, y] = point(i, v);
+        return <circle key={i} cx={x} cy={y} r="4" fill="hsl(var(--primary))" />;
+      })}
+      {axes.map((axis, i) => {
+        const labelR = R + 24;
+        const a = angle(i);
+        const x = cx + labelR * Math.cos(a);
+        const y = cy + labelR * Math.sin(a);
+        return (
+          <text
+            key={i}
+            x={x}
+            y={y}
+            fill="hsl(var(--foreground))"
+            fontSize="11"
+            fontWeight="600"
+            textAnchor="middle"
+            alignmentBaseline="middle"
+          >
+            {axis.label}
+          </text>
+        );
+      })}
+    </svg>
+  );
+}
+
+function GovernanceMaturityRadar() {
+  const axes: RadarAxis[] = [
+    {
+      id: "govern",
+      label: "Strategi & Mandat",
+      levels: [
+        "Ad hoc — ingen formel AI-strategi eller bestyrelsesmandat",
+        "Defineret — skrevet AI-strategi godkendt af direktion, no-go-områder dokumenteret",
+        "Styret — kvartalsvis bestyrelses-rapportering, navngiven C-leder med stop-build authority",
+        "Optimeret — AI-strategi integreret i forretningsstrategi, KPI'er målt og publiceret",
+      ],
+    },
+    {
+      id: "map",
+      label: "Use case-livscyklus",
+      levels: [
+        "Ad hoc — use cases starter uden formel proces",
+        "Defineret — intake-form, triage, klassificeringsproces",
+        "Styret — alle 8 lifecycle-gates implementeret, kill-criteria defineret",
+        "Optimeret — automatisk klassificering, portefølje-dashboard, kvartalsvis kill rate",
+      ],
+    },
+    {
+      id: "measure",
+      label: "Risiko & evaluering",
+      levels: [
+        "Ad hoc — ingen formel testning før produktion",
+        "Defineret — bias-test + accuracy-test før release",
+        "Styret — red team-events, dansk-sproget eval-suite, model cards",
+        "Optimeret — kontinuerlig adversarial testing i CI/CD, ekstern audit",
+      ],
+    },
+    {
+      id: "manage",
+      label: "Drift & monitorering",
+      levels: [
+        "Ad hoc — vi ser kun når det fejler",
+        "Defineret — drift-monitoring + alarmer per model",
+        "Styret — bias re-måling, audit-trail, hændelsesrapport-proces (Art. 73)",
+        "Optimeret — fuld telemetri, automatisk rollback, post-mortem-disciplin",
+      ],
+    },
+    {
+      id: "agent",
+      label: "Agent governance",
+      levels: [
+        "Ad hoc — vi har ingen agenter i prod (eller vi ved det ikke)",
+        "Defineret — agent-register, eksplicit tool-allowlist per agent",
+        "Styret — non-human identity governance, policy engine, decision-class matrix",
+        "Optimeret — kontinuerlig rogue-detection, A2A-policy, agent-observability via OTel",
+      ],
+    },
+    {
+      id: "audit",
+      label: "Audit & assurance",
+      levels: [
+        "Ad hoc — ingen formel revision af AI",
+        "Defineret — årligt 3LoD-audit-program",
+        "Styret — ekstern revision hvert 3. år, modenhedsvurdering mod NIST tier-model",
+        "Optimeret — ISO 42001-certificeret, kontinuerlig assurance, horizon scanning",
+      ],
+    },
+  ];
+
+  const [values, setValues] = useState<number[]>(() => axes.map(() => 0));
+  const setLevel = (axisIndex: number, level: number) => {
+    setValues((prev) => prev.map((v, i) => (i === axisIndex ? level : v)));
+  };
+
+  const totalAssessed = values.filter((v) => v > 0).length;
+  const avg = totalAssessed > 0 ? (values.reduce((a, b) => a + b, 0) / totalAssessed).toFixed(1) : "—";
+
+  // Map average score to NIST RMF-inspired tier label
+  const tierLabel = (avg: string) => {
+    if (avg === "—") return "Ikke vurderet";
+    const a = parseFloat(avg);
+    if (a < 1.5) return "Partial (NIST Tier 1)";
+    if (a < 2.5) return "Risk Informed (Tier 2)";
+    if (a < 3.5) return "Repeatable (Tier 3)";
+    return "Adaptive (Tier 4)";
+  };
+
+  return (
+    <div className="mb-8 rounded-xl border border-primary/30 bg-primary/5 p-6">
+      <div className="mb-1 flex items-center gap-2">
+        <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-bold uppercase text-primary-foreground">Værktøj</span>
+        <h3 className="font-display text-lg font-semibold text-foreground">AI governance maturity — selvassessment</h3>
+      </div>
+      <p className="mb-5 text-sm text-muted-foreground">
+        Vurder jeres AI-governance-modenhed på 6 dimensioner (NIST AI RMF-inspireret + agent governance). Klik et niveau under hver akse — radaret opdaterer live. Brug resultatet som baseline for jeres roadmap.
+      </p>
+      <div className="grid gap-6 lg:grid-cols-[auto_1fr]">
+        <div className="flex flex-col items-center gap-3">
+          <RadarChart axes={axes} values={values} />
+          <div className="text-center">
+            <p className="text-[10px] uppercase tracking-wide text-muted-foreground">Gennemsnit</p>
+            <p className="font-display text-2xl font-bold text-primary">
+              {avg}
+              <span className="text-sm text-muted-foreground">/4</span>
+            </p>
+            <p className="mt-1 text-[10px] text-muted-foreground">{tierLabel(avg)}</p>
+            <p className="text-[10px] text-muted-foreground">{totalAssessed}/{axes.length} akser vurderet</p>
+          </div>
+        </div>
+        <div className="flex flex-col gap-4">
+          {axes.map((axis, i) => (
+            <div key={axis.id}>
+              <div className="mb-2 flex items-baseline justify-between">
+                <p className="font-display text-sm font-semibold text-foreground">{axis.label}</p>
+                <p className="text-[10px] text-muted-foreground">Niveau {values[i] || "—"}</p>
+              </div>
+              <div className="flex gap-1.5">
+                {[1, 2, 3, 4].map((lvl) => {
+                  const selected = values[i] === lvl;
+                  return (
+                    <button
+                      key={lvl}
+                      onClick={() => setLevel(i, lvl)}
+                      className={`flex-1 rounded-md border px-2 py-1.5 text-[11px] text-left transition-colors ${selected ? "border-primary bg-primary/20 text-foreground" : "border-border bg-card text-muted-foreground hover:border-primary/40"}`}
+                      title={axis.levels[lvl - 1]}
+                    >
+                      <span className="font-display text-[10px] font-bold uppercase">{lvl === 1 ? "Initial" : lvl === 2 ? "Defineret" : lvl === 3 ? "Styret" : "Optimeret"}</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {values[i] > 0 && (
+                <p className="mt-1.5 text-[11px] leading-snug text-foreground/80">{axis.levels[values[i] - 1]}</p>
+              )}
+            </div>
+          ))}
+          <button
+            onClick={() => setValues(axes.map(() => 0))}
+            className="self-start text-[11px] text-muted-foreground hover:text-primary"
+          >
+            Nulstil
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── Pillar View ──
 function PillarView({
   pillar,
@@ -1179,6 +1399,7 @@ function SubcategoryView({
 
       {/* Værktøj: Agent beslutnings-klasse matrix (kun for subkategori 1.4.4) */}
       {subcategory.id === "beslutnings-graenser" && <AgentDecisionClassMatrix />}
+      {subcategory.id === "modenhed" && <GovernanceMaturityRadar />}
 
       {/* Handlingspunkter */}
       <div className="mb-8 rounded-xl border border-border bg-card p-6">
