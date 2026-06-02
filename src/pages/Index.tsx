@@ -614,6 +614,157 @@ function AgentDecisionClassMatrix() {
   );
 }
 
+// ── Værktøj: AI Council RACI matrix (for kategori 1.2 roller-ansvar) ──
+function AiCouncilRaci() {
+  const cols = [
+    { id: "council", label: "AI Council", note: "Tværfagligt forum" },
+    { id: "board", label: "Bestyrelse", note: "Strategisk tilsyn" },
+    { id: "model", label: "Model Owner", note: "Teknisk ejer" },
+    { id: "risk", label: "Risk Owner", note: "Forretningsejer" },
+    { id: "dpo", label: "DPO", note: "Databeskyttelse" },
+    { id: "2L", label: "2L Compliance", note: "Uafhængigt risk-team" },
+    { id: "3L", label: "3L Audit", note: "Intern revision" },
+  ];
+
+  const rows: { activity: string; example: string; cells: Record<string, "R" | "A" | "C" | "I" | "-"> }[] = [
+    {
+      activity: "Vedtage AI-strategi & risikoappetit",
+      example: "Årlig strategi, no-go-områder, KPI'er",
+      cells: { council: "C", board: "A", model: "I", risk: "C", dpo: "I", "2L": "C", "3L": "I" },
+    },
+    {
+      activity: "Godkende ny use case (intake)",
+      example: "Triage før PoC-start",
+      cells: { council: "A", board: "I", model: "R", risk: "C", dpo: "C", "2L": "C", "3L": "-" },
+    },
+    {
+      activity: "EU AI Act-risikoklassificering",
+      example: "Forbudt / højrisiko / begrænset / minimal",
+      cells: { council: "I", board: "-", model: "R", risk: "A", dpo: "C", "2L": "C", "3L": "-" },
+    },
+    {
+      activity: "FRIA-gennemførelse (Art. 27)",
+      example: "Højrisiko + offentlige myndigheder/banker/forsikring",
+      cells: { council: "I", board: "I", model: "C", risk: "A", dpo: "R", "2L": "C", "3L": "-" },
+    },
+    {
+      activity: "Leverandør- og GPAI-valg",
+      example: "Foundation model, MCP-servere, agent platforms",
+      cells: { council: "C", board: "I", model: "R", risk: "A", dpo: "C", "2L": "C", "3L": "-" },
+    },
+    {
+      activity: "Produktion-go-live beslutning",
+      example: "Efter PoC, før release til endusers",
+      cells: { council: "A", board: "I", model: "R", risk: "C", dpo: "C", "2L": "C", "3L": "-" },
+    },
+    {
+      activity: "Alvorlig hændelsesrapportering (Art. 73)",
+      example: "Eskalering til myndighed inden 15 dage",
+      cells: { council: "I", board: "I", model: "R", risk: "A", dpo: "C", "2L": "R", "3L": "I" },
+    },
+    {
+      activity: "Retraining & modelversion",
+      example: "Drift, datavurdering, champion/challenger",
+      cells: { council: "I", board: "-", model: "A", risk: "C", dpo: "I", "2L": "C", "3L": "-" },
+    },
+    {
+      activity: "Decommissioning og arkivering",
+      example: "Nedlukning + 10-årig retention for høj-risiko",
+      cells: { council: "C", board: "-", model: "R", risk: "A", dpo: "C", "2L": "I", "3L": "I" },
+    },
+    {
+      activity: "AI-policy & red-line revision",
+      example: "Halvårlig politik-revision",
+      cells: { council: "R", board: "A", model: "C", risk: "C", dpo: "C", "2L": "C", "3L": "I" },
+    },
+    {
+      activity: "AI-literacy program (Art. 4)",
+      example: "Dækningsgrad, certificering, training-records",
+      cells: { council: "A", board: "I", model: "I", risk: "I", dpo: "C", "2L": "R", "3L": "I" },
+    },
+    {
+      activity: "Intern audit-program for AI",
+      example: "Årligt audit-plan, risikobaseret",
+      cells: { council: "I", board: "C", model: "I", risk: "C", dpo: "I", "2L": "C", "3L": "A" },
+    },
+  ];
+
+  const cellStyle = (v: string) => {
+    switch (v) {
+      case "R":
+        return "bg-primary/15 text-primary border-primary/30";
+      case "A":
+        return "bg-danger/15 text-danger border-danger/30";
+      case "C":
+        return "bg-info/15 text-info border-info/30";
+      case "I":
+        return "bg-muted/40 text-muted-foreground border-border";
+      default:
+        return "bg-transparent text-muted-foreground/40 border-transparent";
+    }
+  };
+
+  return (
+    <div className="mb-8 rounded-xl border border-primary/30 bg-primary/5 p-6">
+      <div className="mb-1 flex items-center gap-2">
+        <span className="rounded bg-primary px-1.5 py-0.5 text-[10px] font-bold uppercase text-primary-foreground">Værktøj</span>
+        <h3 className="font-display text-lg font-semibold text-foreground">AI Council RACI</h3>
+      </div>
+      <p className="mb-5 text-sm text-muted-foreground">
+        Default RACI-allokering for governance-beslutninger på tværs af typiske roller. Brug som udgangspunkt for jeres egen — udskift roller efter jeres organisationsstruktur, og dokumentér afvigelser. <strong className="text-foreground">R</strong> = Responsible · <strong className="text-foreground">A</strong> = Accountable · <strong className="text-foreground">C</strong> = Consulted · <strong className="text-foreground">I</strong> = Informed.
+      </p>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr>
+              <th className="sticky left-0 z-10 w-[30%] bg-card p-2 text-left align-bottom font-display text-xs font-semibold uppercase tracking-wide text-muted-foreground">Beslutning / aktivitet</th>
+              {cols.map((c) => (
+                <th key={c.id} className="p-2 text-center align-bottom">
+                  <p className="font-display text-[11px] font-semibold text-foreground">{c.label}</p>
+                  <p className="mt-0.5 text-[9px] font-normal leading-tight text-muted-foreground">{c.note}</p>
+                </th>
+              ))}
+            </tr>
+          </thead>
+          <tbody>
+            {rows.map((row, i) => (
+              <tr key={i} className="border-t border-border/40">
+                <th className="sticky left-0 z-10 bg-card/80 p-3 text-left align-top">
+                  <p className="font-display text-[12px] font-semibold text-foreground">{row.activity}</p>
+                  <p className="mt-0.5 text-[10px] font-normal text-muted-foreground">{row.example}</p>
+                </th>
+                {cols.map((c) => {
+                  const v = row.cells[c.id] ?? "-";
+                  return (
+                    <td key={c.id} className="p-1.5 align-middle">
+                      <div className={`mx-auto flex h-7 w-7 items-center justify-center rounded border font-display text-xs font-bold ${cellStyle(v)}`}>
+                        {v === "-" ? "" : v}
+                      </div>
+                    </td>
+                  );
+                })}
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      <div className="mt-4 grid grid-cols-2 gap-1.5 text-[10px] md:grid-cols-4">
+        {[
+          { v: "R", label: "Responsible — udfører arbejdet" },
+          { v: "A", label: "Accountable — bærer det endelige ansvar" },
+          { v: "C", label: "Consulted — input før beslutning" },
+          { v: "I", label: "Informed — orienteres efter" },
+        ].map((legend) => (
+          <span key={legend.v} className="inline-flex items-center gap-1.5">
+            <span className={`inline-flex h-4 w-4 items-center justify-center rounded border font-display text-[9px] font-bold ${cellStyle(legend.v)}`}>{legend.v}</span>
+            <span className="text-muted-foreground">{legend.label}</span>
+          </span>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 // ── Pillar View ──
 function PillarView({
   pillar,
@@ -713,6 +864,9 @@ function CategoryView({
         </div>
         <p className="mt-3 max-w-3xl text-sm text-muted-foreground">{category.description}</p>
       </div>
+
+      {/* Værktøj: AI Council RACI (kun for roller-ansvar) */}
+      {category.id === "roller-ansvar" && <AiCouncilRaci />}
 
       {/* Underkategorier */}
       <div className="mb-8 grid gap-4">
