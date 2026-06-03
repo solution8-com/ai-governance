@@ -35,6 +35,7 @@ const getSourceBadgeClass = (source: SourceType): string => {
     case "CSA":
     case "FinOps":
     case "MCP":
+    case "OpenTelemetry":
       return "bg-info/15 text-info";
     // Industry frameworks & vendors → warning amber
     case "Microsoft":
@@ -45,6 +46,7 @@ const getSourceBadgeClass = (source: SourceType): string => {
     case "Gartner":
     case "DI":
     case "IIA":
+    case "Industry":
       return "bg-warning/15 text-warning";
     // Security & risk frameworks → danger red
     case "OWASP":

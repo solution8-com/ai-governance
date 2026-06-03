@@ -24,7 +24,9 @@ export type SourceType =
   | "AI Verify"
   | "FinOps"
   | "MCP"
-  | "IIA";
+  | "IIA"
+  | "OpenTelemetry"
+  | "Industry";
 
 export interface Subcategory {
   id: string;
@@ -92,6 +94,19 @@ const IIA_AI_FRAMEWORK = "https://www.theiia.org/globalassets/site/content/tools
 const ISO_42005 = "https://www.iso.org/standard/42005";
 const DS_42001 = "https://www.ds.dk/en/about-standards/management-systems/iso-iec-42001-information-technology-artificial-intelligence";
 const FINANSTILSYNET_GODPRAKSIS = "https://www.finanstilsynet.dk/finansielle-temaer/fintech/vejledning-og-haandholdt-tilsyn/god-praksis-ved-brug-af-kunstig-intelligens";
+
+// 2026-06-03 content additions
+const A2A_SPEC = "https://a2a-protocol.org/latest/specification/";
+const A2A_LF_ANNOUNCEMENT = "https://www.linuxfoundation.org/press/linux-foundation-launches-the-agent2agent-protocol-project-to-enable-secure-intelligent-communication-between-ai-agents";
+const CSA_AGENTIC_IAM = "https://cloudsecurityalliance.org/artifacts/agentic-ai-identity-and-access-management-a-new-approach";
+const OTEL_GENAI = "https://opentelemetry.io/docs/specs/semconv/gen-ai/";
+const OTEL_GENAI_AGENT_SPANS = "https://opentelemetry.io/docs/specs/semconv/gen-ai/gen-ai-agent-spans/";
+const LANGFUSE_OTEL = "https://langfuse.com/integrations/native/opentelemetry";
+const E2B_OVERVIEW = "https://e2b.dev/docs";
+const MODAL_AGENTS = "https://modal.com/resources/best-infrastructure-platforms-coding-agents";
+const CSA_AGENTIC_CONTROL_PLANE = "https://cloudsecurityalliance.org/blog/2026/03/20/2026-securing-the-agentic-control-plane";
+const TRUEFOUNDRY_RATE_LIMIT = "https://www.truefoundry.com/blog/rate-limiting-ai-agents-preventing-llm-api-exhaustion";
+const LITELLM_PROXY = "https://docs.litellm.ai/docs/proxy/users";
 const GDPR_ART_17 = "https://gdpr-info.eu/art-17-gdpr/";
 
 // ── Pillars ───────────────────────────────────────────────────────────────
@@ -103,7 +118,7 @@ export const pillars: Pillar[] = [
     description:
       "Det organisatoriske fundament — roller, ansvar, politikker, kompetencer og etisk styring — der gør, at AI bruges målrettet og forsvarligt på tværs af forretningen. Det er her, ledelsen tager ejerskab og oversætter AI-ambition til styringspraksis.",
     icon: "🏛️",
-    itemCount: 18,
+    itemCount: 19,
   },
   {
     id: "udvikling",
@@ -121,7 +136,7 @@ export const pillars: Pillar[] = [
     description:
       "Hvordan AI-løsninger holdes forsvarlige, sikre og værdiskabende efter go-live — monitorering, hændelseshåndtering, retraining, FinOps og decommissioning. Den pillar der oftest undervurderes — og hvor det meste går galt i 2026.",
     icon: "⚙️",
-    itemCount: 24,
+    itemCount: 27,
   },
 ];
 
@@ -443,11 +458,33 @@ export const categories: Category[] = [
         ],
         tags: ["autonomi", "beslutning", "agent", "irreversibel"],
       },
+      {
+        id: "a2a-protokol-policy",
+        name: "A2A-protokol governance-policy (cross-org agent-kommunikation)",
+        description:
+          "Google's Agent2Agent-protokol blev doneret til Linux Foundation i juni 2025 og er nu v1.0+ med 150+ adoptanter (Microsoft, AWS, Salesforce, SAP, ServiceNow) i produktion. De tekniske beslutninger er én ting — men organisationen skal aktivt vælge agent-identitets-, kapabilitets-disclosure- og trust-policy. Hvem ejer indholdet af jeres Agent Card? Hvilke partnere må kalde jeres agenter?",
+        severity: "high",
+        actions: [
+          "Agent Card-registreringspolicy: beslut hvem der ejer indholdet af /.well-known/agent.json (juridisk review af skill-beskrivelser, version-cadence, deprecation SLA)",
+          "Krav om signerede Agent Cards (JWS + JCS canonicalisation) for alle inbound A2A-forbindelser i produktion; afvis usignerede cards fra eksterne domæner",
+          "Capability-disclosure-standard: definér hvilke skills må eksponeres eksternt vs. intra-org; DPIA før nogen skill der behandler personoplysninger listes på et eksternt agent card",
+          "Authentication-scheme-allowlist: pre-godkend (fx OAuth2 mod specifik IdP, mTLS med org-PKI); forbyd API-key-only for cross-org A2A",
+          "Inbound/outbound trust-policy: allowlist af partner-domæner hvis Agent Cards må kaldes; krav om kontraktligt addendum (DPA + AI sub-processor-vilkår) før allowlisting",
+          "Owner-of-record pr. registreret remote agent: hver registreret ekstern agent har en navngivet menneskelig ejer ansvarlig for revocation når kapabiliteter ændrer sig eller tillid degraderes",
+        ],
+        sourceLinks: [
+          { label: "A2A Protocol Specification (v1.0+)", url: A2A_SPEC, source: "Google" },
+          { label: "Linux Foundation A2A donation press release", url: A2A_LF_ANNOUNCEMENT, source: "Industry" },
+          { label: "CSA Agentic AI Identity & Access Management", url: CSA_AGENTIC_IAM, source: "CSA" },
+        ],
+        tags: ["A2A", "agent-protokol", "agent-card", "trust", "cross-org"],
+      },
     ],
     sourceLinks: [
       { label: "OWASP Top 10 for Agentic Applications 2026", url: OWASP_AGENTIC, source: "OWASP" },
       { label: "OWASP Agentic Security Initiative", url: OWASP_ASI, source: "OWASP" },
       { label: "CSA Non-Human Identity & Agentic AI Governance", url: CSA_NHI, source: "CSA" },
+      { label: "A2A Protocol Specification", url: A2A_SPEC, source: "Google" },
     ],
   },
 
@@ -1101,11 +1138,33 @@ export const categories: Category[] = [
         ],
         tags: ["misbrug", "jailbreak", "insider"],
       },
+      {
+        id: "otel-genai-observability",
+        name: "Agent observability via OpenTelemetry GenAI",
+        description:
+          "OpenTelemetry GenAI semantic conventions standardiserer hvordan AI-kald, tool-invocations og workflows registreres som spans og metrics. Pr. 2026 er client-call-spans tæt på stable; agent- og tool-spans er stadig under aktiv udvikling. Major vendors (Datadog, New Relic, Dynatrace, Langfuse, Arize) ingester nu konventionerne natively — det er den de facto baseline for portabel agent-observability.",
+        severity: "high",
+        actions: [
+          "Emit standard span-attributter på hvert model-kald: gen_ai.operation.name, gen_ai.request.model, gen_ai.provider.name, gen_ai.usage.input_tokens, gen_ai.usage.output_tokens, gen_ai.response.finish_reasons",
+          "Instrumentér agent-niveau spans (create_agent, invoke_agent, invoke_workflow, execute_tool) så flertrins agent-traces kan rekonstrueres end-to-end",
+          "PII-filtreret prompt/response-capture: brug OTel Collector 'redaction'-processor eller Presidio-sidecar til at strippe e-mails, CPR, kontonumre FØR eksport; log aldrig rå brugerindhold ufiltreret",
+          "Cost-attribution: tilføj vendor-neutral 'org.cost.usd' attribut beregnet i collector fra token-counts × price-table; tag spans med 'org.cost_center' for FinOps-allokering",
+          "Sæt OTEL_SEMCONV_STABILITY_OPT_IN=gen_ai_latest_experimental på agent-runtimes for at modtage nyeste agent/tool span-skema",
+          "Vælg ét kanonisk observability-backend pr. miljø; undgå double-instrumentation (OpenInference + GenAI semconv samtidigt)",
+        ],
+        sourceLinks: [
+          { label: "OpenTelemetry GenAI semantic conventions", url: OTEL_GENAI, source: "OpenTelemetry" },
+          { label: "OTel GenAI agent spans spec", url: OTEL_GENAI_AGENT_SPANS, source: "OpenTelemetry" },
+          { label: "Langfuse OTel integration", url: LANGFUSE_OTEL, source: "Industry" },
+        ],
+        tags: ["observability", "OpenTelemetry", "instrumentation", "FinOps"],
+      },
     ],
     sourceLinks: [
       { label: "NIST AI RMF MANAGE", url: NIST_AIRMF, source: "NIST" },
       { label: "Gartner AI TRiSM", url: GARTNER_TRISM, source: "Gartner" },
       { label: "Google SAIF", url: GOOGLE_SAIF, source: "Google" },
+      { label: "OpenTelemetry GenAI semantic conventions", url: OTEL_GENAI, source: "OpenTelemetry" },
     ],
   },
 
@@ -1391,11 +1450,54 @@ export const categories: Category[] = [
         ],
         tags: ["exfiltration", "DLP", "privilege separation"],
       },
+      {
+        id: "agent-sandboxing",
+        name: "Sandboxing af autonome agenter (mikroVM / gVisor)",
+        description:
+          "Autonome agenter der eksekverer model-genereret kode, browser web eller invoker shell-tools skal køre i en isolations-grænse stærkere end shared-kernel containers. I 2026 dominerer microVM-baserede sandboxes (Firecracker, brugt af E2B og AWS Lambda) og user-space kernel sandboxes (gVisor, brugt af Modal). Managed providers (E2B, Daytona, Modal, Northflank) tilbyder cold starts på 90-200 ms.",
+        severity: "critical",
+        actions: [
+          "Krav om microVM eller gVisor-isolation for enhver agent der eksekverer model-genereret kode; ren Docker/containerd er ikke nok fordi alle containere deler host-kernel",
+          "Default-deny network egress med allowlist: boot sandboxes med --network=none og tillad kun de destinationer task'en kræver (blokerer data-exfiltration via prompt injection)",
+          "Read-only filesystem med scoped writable scratch: mount base-image read-only; tilbyd writable /tmp eller /workspace bundet til task'en og kassér ved exit",
+          "Hard time- og resource-caps pr. task: pr-tool timeout (~30 s) og pr-task wall-clock cap (~20 min) ved orchestrator, plus CPU/RAM-limits ved sandbox-runtime",
+          "Per-task ephemeral sandboxes som default for kode-eksekvering og web-browsing; reservér persistent sandboxes til langtids-coding-agenter med repo-state, snapshot/decommission ugentligt",
+          "Forbyd host Docker-socket og privileged mode på org-policy-niveau; begge muliggør trivial container-escape",
+        ],
+        sourceLinks: [
+          { label: "E2B Sandbox Documentation", url: E2B_OVERVIEW, source: "Industry" },
+          { label: "Modal: Infrastructure for coding agents", url: MODAL_AGENTS, source: "Industry" },
+          { label: "CSA: Securing the Agentic Control Plane (2026)", url: CSA_AGENTIC_CONTROL_PLANE, source: "CSA" },
+        ],
+        tags: ["sandbox", "microVM", "Firecracker", "gVisor", "isolation"],
+      },
+      {
+        id: "agent-rate-limiting",
+        name: "Agent rate-limiting & cost circuit-breaker",
+        description:
+          "Agent rate-limiting adskiller sig fundamentalt fra API rate-limiting fordi agenter skaber cascading cost: en retry-loop med voksende kontekst kan tage en 4.000-token prompt til 128.000 tokens på 5 steps — ~32× pr-call-pris. Konventionelle QPS-limits tillader denne patologi. Agent-governance kræver lag-baserede kontroller på spending-velocity, loop-mønstre og tool-call-kvoter — håndhævet ved AI-gateway, ikke per-framework. Publicly rapporterede runaway-loop-hændelser har kostet titusinder af dollars.",
+        severity: "high",
+        actions: [
+          "Token bucket pr. identitets-tupel (user, agent, model) ved gateway (fx LiteLLM proxy) — ikke global cap; én runaway tenant kan ikke sulte andre",
+          "Cost circuit-breaker på velocity: trip ved spend > daily_budget × multiplier / time (fx >$5/min på $50/dag-budget); pause workload og page platform-teamet før faktura-skade",
+          "Per-task budget + iteration-cap i agent-framework (LangChain/LangGraph max-iterations, LiteLLM max_budget) så én user-request ikke spiser ubegrænset team-budget",
+          "Loop-signature breaker: detect identiske prompts, monotont voksende kontekst eller gentagne tool-calls inden for en session; trip per-session breaker (fanger rekursive failures som token-buckets ikke ser)",
+          "Tool-call-kvoter downstream: separate quotas ved tool-laget (max 50 web-searches/task, max 10 DB-writes/task) — model-gateway rate-limiter ikke dyre tool-calls",
+          "Declarativ fallback-chain pr. route: primary → cheaper model → semantic cache → 503; dokumentér hvilke routes accepterer degraded quality vs. som skal fail closed (fx legal drafting)",
+        ],
+        sourceLinks: [
+          { label: "TrueFoundry: 3-layer gateway rate-limiting", url: TRUEFOUNDRY_RATE_LIMIT, source: "Industry" },
+          { label: "LiteLLM proxy budgets & rate limits", url: LITELLM_PROXY, source: "Industry" },
+          { label: "FinOps for AI Foundation", url: FINOPS_AI, source: "FinOps" },
+        ],
+        tags: ["rate-limiting", "cost-control", "circuit-breaker", "AI-gateway"],
+      },
     ],
     sourceLinks: [
       { label: "OWASP Top 10 for Agentic Applications 2026", url: OWASP_AGENTIC, source: "OWASP" },
       { label: "CSA Non-Human Identity & Agentic AI Governance", url: CSA_NHI, source: "CSA" },
       { label: "MITRE ATLAS", url: MITRE_ATLAS, source: "MITRE" },
+      { label: "CSA Securing the Agentic Control Plane (2026)", url: CSA_AGENTIC_CONTROL_PLANE, source: "CSA" },
     ],
   },
 
