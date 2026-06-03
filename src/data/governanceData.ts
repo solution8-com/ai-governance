@@ -1678,3 +1678,50 @@ export const getSeverityBg = (severity: Severity): string => {
 export const getCategoriesByPillar = (pillar: PillarId): Category[] => {
   return categories.filter((c) => c.pillar === pillar);
 };
+
+// ── Værktøjer: metadata for canonical /vaerktoejer/<slug> URLs ──
+// Component-free so it can be imported by both the SPA (Index.tsx) and the
+// prerender script (scripts/prerender.ts). Index.tsx maps each slug to its
+// React component; the prerender script emits per-tool meta + sitemap entries.
+export interface ToolMeta {
+  slug: string;
+  title: string;
+  shortPitch: string; // 1 sentence for the teaser card
+  description: string; // 2-3 sentences for meta tags + tool-page lede
+  icon: string;
+}
+
+export const toolsMeta: ToolMeta[] = [
+  {
+    slug: "use-case-livscyklus",
+    title: "Use case-livscyklus",
+    shortPitch: "8 faser fra idé til udfasning — med ejer, gate og kill-kriterier for hvert trin.",
+    description:
+      "Flow over use case-livscyklussens 8 faser (idé → værdivurdering → udvikling → validering → idriftsættelse → drift → revurdering → udfasning), hver med ansvarlig ejer, beslutnings-gate og kill-kriterier. Krydsreferer AI Council RACI-matricen.",
+    icon: "🔄",
+  },
+  {
+    slug: "ai-council-raci",
+    title: "AI Council RACI",
+    shortPitch: "Hvem gør hvad i AI-governance? 12 aktiviteter × 7 roller med R/A/C/I-celler.",
+    description:
+      "RACI-matrix over 12 governance-aktiviteter × 7 roller (AI Council, ejer, risiko, DPO, jura, IT-sikkerhed, forretning) med Responsible/Accountable/Consulted/Informed i hver celle. Et startpunkt for jeres egen ansvarsfordeling.",
+    icon: "👥",
+  },
+  {
+    slug: "agent-runtime-control-plane",
+    title: "Agent runtime control-plane",
+    shortPitch: "7-lags pipeline for sikker agent-eksekvering — fra request til menneskelig oversight.",
+    description:
+      "Diagram over et 7-lags control-plane til AI-agenter: Request → Identitet → Policy → Plan-validering → Eksekvering → Observability → Human oversight. Referencearkitektur for governance af autonome agenter i produktion.",
+    icon: "🛡️",
+  },
+  {
+    slug: "governance-modenhed",
+    title: "Governance-modenhedsradar",
+    shortPitch: "Hvor moden er jeres AI-governance? Interaktiv selvvurdering på 6 akser.",
+    description:
+      "Interaktiv selvvurderings-radar på 6 akser mappet til NIST AI RMF + agent-governance, med tier-label-output. Få et visuelt øjebliksbillede af jeres AI-governance-modenhed og hvor I bør prioritere indsatsen.",
+    icon: "📡",
+  },
+];

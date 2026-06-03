@@ -1,6 +1,24 @@
 # ai-governance.dk — project status
 
-**Last updated:** 2026-06-01 (deploy + audit-driven refresh + dashboard viz + search upgrade)
+**Last updated:** 2026-06-03 — tool-URL refactor shipped (UX sprint 2/3).
+
+## Tool-URL refactor (UX sprint 2/3) — shipped 2026-06-03
+
+4 tools promoted to canonical, prerendered `/vaerktoejer/<slug>` URLs:
+
+| Slug | Tool | Was inline on |
+|---|---|---|
+| `use-case-livscyklus` | Use case-livscyklus | Udvikling pillar |
+| `ai-council-raci` | AI Council RACI | roller-ansvar category |
+| `agent-runtime-control-plane` | Agent runtime control-plane | agent-runtime category |
+| `governance-modenhed` | Governance-modenhedsradar | modenhed subcategory |
+
+- `AgentDecisionClassMatrix` stays **inline** on `beslutnings-graenser` (answers that subcategory's question).
+- `agent-runtime-control-plane` was the audit's flagged "hidden gem" (buried 2 levels deep); now reachable from header nav + `/vaerktoejer`.
+- No dashboard teaser (governance has no dashboard-level tool) — `DashboardView` left unchanged; `SubcategoryView` gained `onOpenTool` (for the modenhed teaser), which compliance/sikkerhed didn't need.
+- Pattern identical to compliance: prop-free `ToolConfig.Component`, `toolsMeta` in `governanceData.ts` shared with `prerender.ts`, `ToolTeaserCard`/`ToolsIndex`/`ToolPage`, "Værktøjer" header nav, Breadcrumbs extended. Build: 91 routes + sitemap. Hydration verified via headless Chrome.
+
+
 
 ## At a glance
 
